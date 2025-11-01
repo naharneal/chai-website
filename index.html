@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌿 Chai at Water’s Edge</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fef3c7;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #b45309;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      position: relative;
+    }
+
+    /* View Deals Button */
+    #viewDealsBtn {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 0.7rem;
+      padding: 4px 6px;
+      width: 25%;
+      border-radius: 8px;
+      background-color: #fff7ed;
+      color: #92400e;
+      border: 1px solid #d6b453;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    #viewDealsBtn:hover {
+      background-color: #fef3c7;
+    }
+
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 550px;
+      margin: 20px auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    select, input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #d6b453;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #b45309;
+      color: white;
+      border: none;
+      margin-top: 15px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover { background-color: #92400e; }
+
+    .popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .popup-content {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      width: 80%;
+      max-width: 400px;
+      color: #78350f;
+    }
+
+    .tracker-card {
+      margin-top: 20px;
+      background-color: #fff7ed;
+      border: 2px solid #d6b453;
+      border-radius: 15px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .admin-section {
+      display: none;
+      background-color: #fff7ed;
+      padding: 20px;
+      border-radius: 15px;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .order-item {
+      border: 1px solid #d6b453;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px 0;
+      background: white;
+    }
+
+    .status-select {
+      width: auto;
+      padding: 5px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="viewDealsBtn" onclick="openDeals()">View Deals</button>
+    🌿 Chai at Water’s Edge
+  </header>
+
+  <!-- Deals Popup -->
+  <div class="popup" id="dealsPopup" style="display:none;">
+    <div class="popup-content">
+      <h2>🔥 Current Chai Deals 🔥</h2>
+      <p>☕ Buy <strong>2+ chai</strong> → Get a <strong>FREE Parle-G biscuit!</strong></p>
+      <p>🫖 Buy <strong>3+ chai</strong> → Get <strong>10% off</strong>!</p>
+      <p>🥤 Buy a <strong>Variety Pack</strong> (1 Small + 1 Medium + 1 Large) → <strong>20% off!</strong></p>
+      <button onclick="closePopup()">Got it!</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Order Your Chai</h1>
+
+    <form id="chaiForm">
+      <label for="orderType">Order Type:</label>
+      <select id="orderType" onchange="toggleDeliveryFields()">
+        <option value="pickup">Pickup</option>
+        <option value="delivery">Delivery</option>
+      </select>
+
+      <div id="deliveryFields">
+        <label for="recipient">Recipient Name:</label>
+        <input type="text" id="recipient" placeholder="Enter recipient name">
+        <label for="address">Address:</label>
+        <input type="text" id="address" value="Water’s Edge, Franklin, TN">
+      </div>
+
+      <label>Small Chai ($0.50):</label>
+      <input type="number" id="smallQty" min="0" value="0">
+      <label>Medium Chai ($1.00):</label>
+      <input type="number" id="mediumQty" min="0" value="0">
+      <label>Large Chai ($1.50):</label>
+      <input type="number" id="largeQty" min="0" value="0">
+
+      <label><input type="checkbox" id="cookiePack"> Add 8 Good Day Cookies ($2)</label>
+      <label><input type="checkbox" id="parlePack"> Add Parle-G biscuit ($0.50)</label>
+
+      <label>Sugar Level: <span id="sugarLabel">Medium 🍬</span></label>
+      <input type="range" id="sugarSlider" min="0" max="2" value="1">
+
+      <label for="customNote">Special Request:</label>
+      <textarea id="customNote" placeholder="Extra hot, light sugar, etc..."></textarea>
+
+      <label for="tipAmount">Tip your barista ($):</label>
+      <input type="number" id="tipAmount" min="0" step="0.25" value="0">
+
+      <button type="button" onclick="showSummary()">Review Order</button>
+    </form>
+
+    <div id="summaryBox" style="display:none; text-align:center;">
+      <h2>Order Summary</h2>
+      <p id="summaryDetails"></p>
+      <button onclick="confirmOrder()">Confirm Order</button>
+      <button onclick="editOrder()">Edit Order</button>
+    </div>
+
+    <div id="confirmation" style="display:none; text-align:center;">
+      <h2>✅ Order Submitted!</h2>
+    </div>
+  </div>
+
+  <div class="container" style="text-align:center;">
+    <button onclick="showAdminLogin()">Admin Login</button>
+  </div>
+
+  <!-- Admin Login Popup -->
+  <div class="popup" id="adminLogin" style="display:none;">
+    <div class="popup-content">
+      <h2>🔑 Admin Login</h2>
+      <input type="password" id="adminPassword" placeholder="Enter admin password">
+      <button onclick="checkAdmin()">Login</button>
+    </div>
+  </div>
+
+  <div class="admin-section" id="adminSection">
+    <h2>📋 Admin Dashboard</h2>
+    <div id="ordersList"></div>
+  </div>
+
+  <script>
+    const prices = { small: 0.5, medium: 1, large: 1.5, cookies: 2, parle: 0.5 };
+    const orders = JSON.parse(localStorage.getItem("chaiOrders") || "[]");
+
+    function openDeals() { document.getElementById('dealsPopup').style.display = 'flex'; }
+    function closePopup() { document.getElementById('dealsPopup').style.display = 'none'; }
+
+    function toggleDeliveryFields() {
+      const type = document.getElementById('orderType').value;
+      document.getElementById('deliveryFields').style.display = 'block';
+    }
+
+    const sugarSlider = document.getElementById('sugarSlider');
+    const sugarLabel = document.getElementById('sugarLabel');
+    sugarSlider.addEventListener('input', () => {
+      const levels = ['No Sugar 🧊', 'Medium 🍬', 'Extra Sweet 🍯'];
+      sugarLabel.textContent = levels[sugarSlider.value];
+    });
+
+    function calculateTotal() {
+      let total = 0;
+      let totalChais = 0;
+      const s = Number(document.getElementById('smallQty').value);
+      const m = Number(document.getElementById('mediumQty').value);
+      const l = Number(document.getElementById('largeQty').value);
+      totalChais = s + m + l;
+      total += s * prices.small + m * prices.medium + l * prices.large;
+      if (document.getElementById('cookiePack').checked) total += prices.cookies;
+      if (document.getElementById('parlePack').checked) total += prices.parle;
+      total += Number(document.getElementById('tipAmount').value);
+      if (totalChais >= 3) total *= 0.9;
+      return total.toFixed(2);
+    }
+
+    function showSummary() {
+      const total = calculateTotal();
+      let summary = "";
+      const s = Number(document.getElementById('smallQty').value);
+      const m = Number(document.getElementById('mediumQty').value);
+      const l = Number(document.getElementById('largeQty').value);
+      const totalChais = s + m + l;
+      if (s === 0 && m === 0 && l === 0 && !document.getElementById('cookiePack').checked) {
+        alert("Please select at least one item!");
+        return;
+      }
+
+      if (s) summary += `${s} × Small ($0.50)<br>`;
+      if (m) summary += `${m} × Medium ($1.00)<br>`;
+      if (l) summary += `${l} × Large ($1.50)<br>`;
+      if (document.getElementById('cookiePack').checked) summary += `+ 8 Good Day Cookies ($2)<br>`;
+      if (document.getElementById('parlePack').checked) summary += `+ Parle-G biscuit ($0.50)<br>`;
+      if (totalChais >= 2) summary += `🎁 FREE Parle-G biscuit<br>`;
+      if (totalChais >= 3) summary += `💸 10% discount applied<br>`;
+      summary += `<strong>Total:</strong> $${total}<br>`;
+      document.getElementById('summaryDetails').innerHTML = summary;
+      document.getElementById('chaiForm').style.display = 'none';
+      document.getElementById('summaryBox').style.display = 'block';
+    }
+
+    function confirmOrder() {
+      const order = {
+        recipient: document.getElementById('recipient').value,
+        address: document.getElementById('address').value,
+        small: document.getElementById('smallQty').value,
+        medium: document.getElementById('mediumQty').value,
+        large: document.getElementById('largeQty').value,
+        cookies: document.getElementById('cookiePack').checked,
+        parle: document.getElementById('parlePack').checked,
+        sugar: sugarLabel.textContent,
+        tip: document.getElementById('tipAmount').value,
+        total: calculateTotal(),
+        status: "☕ Preparing"
+      };
+      orders.push(order);
+      localStorage.setItem("chaiOrders", JSON.stringify(orders));
+      document.getElementById('summaryBox').style.display = 'none';
+      document.getElementById('confirmation').style.display = 'block';
+    }
+
+    function editOrder() {
+      document.getElementById('summaryBox').style.display = 'none';
+      document.getElementById('chaiForm').style.display = 'block';
+    }
+
+    function showAdminLogin() {
+      document.getElementById('adminLogin').style.display = 'flex';
+    }
+
+    function checkAdmin() {
+      const pass = document.getElementById('adminPassword').value;
+      if (pass === "121215") {
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminSection').style.display = 'block';
+        loadOrders();
+      } else {
+        alert("Incorrect password!");
+      }
+    }
+
+    function loadOrders() {
+      const list = document.getElementById("ordersList");
+      list.innerHTML = "";
+      const stored = JSON.parse(localStorage.getItem("chaiOrders") || "[]");
+      stored.forEach((order, idx) => {
+        const div = document.createElement("div");
+        div.className = "order-item";
+        div.innerHTML = `
+          <p><strong>Recipient:</strong> ${order.recipient}</p>
+          <p><strong>Total:</strong> $${order.total}</p>
+          <p><strong>Status:</strong>
+            <select class="status-select" onchange="updateStatus(${idx}, this.value)">
+              <option ${order.status==='☕ Preparing'?'selected':''}>☕ Preparing</option>
+              <option ${order.status==='🚗 Out for Delivery'?'selected':''}>🚗 Out for Delivery</option>
+              <option ${order.status==='✅ Delivered'?'selected':''}>✅ Delivered</option>
+            </select>
+          </p>`;
+        list.appendChild(div);
+      });
+    }
+
+    function updateStatus(idx, status) {
+      orders[idx].status = status;
+      localStorage.setItem("chaiOrders", JSON.stringify(orders));
+      loadOrders();
+    }
+  </script>
+</body>
+</html>
